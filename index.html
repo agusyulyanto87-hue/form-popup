@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Google Form Popup</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      color: #fff;
+      text-align: center;
+    }
+    .btn {
+      background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+      border: none;
+      padding: 15px 30px;
+      border-radius: 30px;
+      font-size: 1rem;
+      cursor: pointer;
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.9);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+    .overlay.active { display: flex; }
+    .popup {
+      background: #fff;
+      border-radius: 15px;
+      width: 95%;
+      max-width: 800px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .popup header {
+      background: #e74c3c;
+      color: #fff;
+      padding: 15px;
+    }
+    .popup iframe {
+      width: 100%;
+      height: 500px;
+      border: none;
+    }
+    .popup .success {
+      display: none;
+      padding: 30px;
+      color: #2ecc71;
+      font-weight: bold;
+    }
+    .close-btn {
+      display: none;
+      margin: 20px auto;
+      padding: 10px 20px;
+      border-radius: 20px;
+      border: 2px solid #2ecc71;
+      background: transparent;
+      cursor: pointer;
+      color: #2ecc71;
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <h1>📋 Formulir Wajib</h1>
+    <p>Formulir tidak dapat ditutup sebelum dikirim</p>
+    <button class="btn" onclick="openPopup()">🚀 Buka Formulir</button>
+  </div>
+
+  <div class="overlay" id="overlay">
+    <div class="popup">
+      <header>
+        <h2>📝 Isi Formulir</h2>
+      </header>
+      <iframe id="formFrame"></iframe>
+      <div class="success" id="successMsg">✅ Terima kasih! Formulir berhasil dikirim.</div>
+      <button class="close-btn" id="closeBtn" onclick="closePopup()">Tutup</button>
+    </div>
+  </div>
+
+  <script>
+    // 🔗 Ganti dengan URL Google Form embed Anda
+    const GOOGLE_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSdfmwD6DUR_oBhrha7Dcaz_J4fXLRmMk-Fle4ioilAAZc1W4g/viewform?embedded=true";
+
+    const overlay = document.getElementById("overlay");
+    const iframe = document.getElementById("formFrame");
+    const successMsg = document.getElementById("successMsg");
+    const closeBtn = document.getElementById("closeBtn");
+
+    let submitted = false;
+
+    function openPopup() {
+      iframe.src = GOOGLE_FORM_URL;
+      overlay.classList.add("active");
+      submitted = false;
+    }
+
+    function closePopup() {
+      if (!submitted) {
+        alert("⚠️ Anda harus mengirim form sebelum menutup!");
+        return;
+      }
+      overlay.classList.remove("active");
+      iframe.src = "";
+      successMsg.style.display = "none";
+      closeBtn.style.display = "none";
+    }
+
+    // Deteksi jika sudah submit (cek perubahan URL iframe)
+    iframe.addEventListener("load", () => {
+      try {
+        const url = iframe.contentWindow.location.href;
+        if (url.includes("formResponse")) {
+          submitted = true;
+          successMsg.style.display = "block";
+          closeBtn.style.display = "block";
+        }
+      } catch (e) {
+        // normal (cross-origin Google Forms)
+      }
+    });
+  </script>
+</body>
+</html>
